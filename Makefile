@@ -11,8 +11,9 @@ help: ## Display help message (*: main entry points / []: part of an entry point
 ################################################################################
 .PHONY: start-lab
 start-lab: ## Start Containerlab
-	sudo clab deploy -t topologies/L2LS/L2LS.yaml --reconfigure
+	pwd
+	clab deploy -t ./topologies/WAN/WAN.yaml --reconfigure
 
 .PHONY: stop-lab
 stop-lab: ## Stop ContainerLab
-	sudo clab destroy -t topologies/L2LS/L2LS.yaml --cleanup
+	clab destroy -t ./topologies/WAN/WAN.yaml --cleanup

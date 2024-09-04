@@ -5,7 +5,7 @@
 # -------------------------------------------------------------
 
 #https://containerlab.dev/manual/topo-def-file/#name
-name: L2LS
+name: WAN
 
 #https://containerlab.dev/manual/topo-def-file/#prefix
 prefix: ""
@@ -20,16 +20,16 @@ topology:
 
   defaults:
     env:
-      INTFTYPE: et
+      INTFTYPE: eth
 
   kinds:
-    ceos:
+    cloudeos:
       # adjust to the name of the docker image you imported
       # format:
       #     image: <REPOSITORY>:<TAG>
       # Check docker images with the following docker command:
       #     docker images
-      image: ceos:4.30.3M
+      image: cloud-eos:4.32.2F
     linux:
       image: mitchv85/ohv-host
 
@@ -59,14 +59,14 @@ topology:
         graph-hide: yes
 
 #########################
-# SPINE                 #
+# NODES                #
 #########################
 
 #https://containerlab.dev/manual/topo-def-file/#nodes
-    SPINE1:
-      kind: ceos
+    CLOUDEOS1:
+      kind: cloudeos
       mgmt-ipv4: 172.100.100.101
-      startup-config: configs/SPINE1.cfg
+      startup-config: configs/CLOUDEOS1.cfg
       ports:
         - '22001:22'
         - '8001:80'
@@ -75,26 +75,22 @@ topology:
         graph-level: 1
         graph-icon: switch
 
-    SPINE2:
-      kind: ceos
+    CLOUDEOS2:
+      kind: cloudeos
       mgmt-ipv4: 172.100.100.102
-      startup-config: configs/SPINE2.cfg
+      startup-config: configs/CLOUDEOS2.cfg
       ports:
         - '22002:22'
         - '8002:80'
         - '44302:443'
       labels:
-        graph-level: 1
+        graph-level: 2
         graph-icon: switch
 
-#########################
-# LEAF                  #
-#########################
-
-    LEAF1:
-      kind: ceos
+    CLOUDEOS3:
+      kind: cloudeos
       mgmt-ipv4: 172.100.100.103
-      startup-config: configs/LEAF1.cfg
+      startup-config: configs/CLOUDEOS3.cfg
       ports:
         - '22003:22'
         - '8003:80'
@@ -103,115 +99,80 @@ topology:
         graph-level: 2
         graph-icon: switch
 
-    LEAF2:
-      kind: ceos
+    CLOUDEOS4:
+      kind: cloudeos
       mgmt-ipv4: 172.100.100.104
-      startup-config: configs/LEAF2.cfg
+      startup-config: configs/CLOUDEOS4.cfg
       ports:
         - '22004:22'
         - '8004:80'
         - '44304:443'
       labels:
-        graph-level: 2
+        graph-level: 3
         graph-icon: switch
 
-    LEAF3:
-      kind: ceos
+    CLOUDEOS5:
+      kind: cloudeos
       mgmt-ipv4: 172.100.100.105
-      startup-config: configs/LEAF3.cfg
+      startup-config: configs/CLOUDEOS5.cfg
       ports:
         - '22005:22'
         - '8005:80'
         - '44305:443'
       labels:
-        graph-level: 2
+        graph-level: 3
         graph-icon: switch
 
-    LEAF4:
-      kind: ceos
+    CLOUDEOS6:
+      kind: cloudeos
       mgmt-ipv4: 172.100.100.106
-      startup-config: configs/LEAF4.cfg
+      startup-config: configs/CLOUDEOS6.cfg
       ports:
         - '22006:22'
         - '8006:80'
         - '44306:443'
       labels:
-        graph-level: 2
+        graph-level: 3
         graph-icon: switch
 
-###########################################
-# HOST                                    #
-###########################################
-
-    HOSTA:
-      kind: linux
-      image: mitchv85/ohv-host
+    CLOUDEOS7:
+      kind: cloudeos
       mgmt-ipv4: 172.100.100.107
+      startup-config: configs/CLOUDEOS7.cfg
       ports:
-        - '22207:22'
-      exec:
-        - bash /usr/local/bin/hostnetconfig.sh -b -i 10.10.10.100/24 -g 10.10.10.1
+        - '22007:22'
+        - '8007:80'
+        - '44307:443'
       labels:
         graph-level: 3
-        graph-icon: host
+        graph-icon: switch
 
-    HOSTB:
-      kind: linux
-      image: mitchv85/ohv-host
+    CLOUDEOS8:
+      kind: cloudeos
       mgmt-ipv4: 172.100.100.108
+      startup-config: configs/CLOUDEOS8.cfg
       ports:
-        - '22208:22'
-      exec:
-        - bash /usr/local/bin/hostnetconfig.sh -b -i 10.20.20.100/24 -g 10.20.20.1
+        - '22008:22'
+        - '8008:80'
+        - '44308:443'
       labels:
         graph-level: 3
-        graph-icon: host
+        graph-icon: switch
+
+
+
+
+
+
+
+
 
 #https://containerlab.dev/manual/topo-def-file/#links
   links:
-
-####################
-# SPINE1 to LEAF   #
-####################
-    - endpoints: ["SPINE1:et1", "LEAF1:et1"]
-    - endpoints: ["SPINE1:et2", "LEAF2:et1"]
-    - endpoints: ["SPINE1:et3", "LEAF3:et1"]
-    - endpoints: ["SPINE1:et4", "LEAF4:et1"]
-
-####################
-# SPINE2 to LEAF   #
-####################
-    - endpoints: ["SPINE2:et1", "LEAF1:et2"]
-    - endpoints: ["SPINE2:et2", "LEAF2:et2"]
-    - endpoints: ["SPINE2:et3", "LEAF3:et2"]
-    - endpoints: ["SPINE2:et4", "LEAF4:et2"]
-
-####################
-# SPINE1 to SPINE2 #
-####################
-    - endpoints: ["SPINE1:et5", "SPINE2:et5"]
-    - endpoints: ["SPINE1:et6", "SPINE2:et6"]
-
-####################
-# LEAF1 to LEAF2   #
-####################
-    - endpoints: ["LEAF1:et3", "LEAF2:et3"]
-    - endpoints: ["LEAF1:et4", "LEAF2:et4"]
-
-####################
-# LEAF3 to LEAF4   #
-####################
-    - endpoints: ["LEAF3:et3", "LEAF4:et3"]
-    - endpoints: ["LEAF3:et4", "LEAF4:et4"]
-
-####################
-# HOSTA            #
-####################
-    - endpoints: ["HOSTA:eth1", "LEAF1:et5"]
-    - endpoints: ["HOSTA:eth2", "LEAF2:et5"]
-
-####################
-# HOSTB            #
-####################
-    - endpoints: ["HOSTB:eth1", "LEAF3:et5"]
-    - endpoints: ["HOSTB:eth2", "LEAF4:et5"]
+    - endpoints: ["CLOUDEOS1:eth1", "CLOUDEOS2:eth1"]
+    - endpoints: ["CLOUDEOS2:eth2", "CLOUDEOS3:eth1"]
+    - endpoints: ["CLOUDEOS2:eth3", "CLOUDEOS4:eth1"]
+    - endpoints: ["CLOUDEOS3:eth2", "CLOUDEOS5:eth1"]
+    - endpoints: ["CLOUDEOS4:eth2", "CLOUDEOS6:eth1"]
+    - endpoints: ["CLOUDEOS5:eth2", "CLOUDEOS7:eth1"]
+    - endpoints: ["CLOUDEOS6:eth2", "CLOUDEOS8:eth1"]
