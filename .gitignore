@@ -2,3 +2,5 @@ clab*/
 .L2LS*
 !.gitignore
 .vscode/
+ipsec-license.json
+*.tar.xz
